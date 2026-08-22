@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Happy Birthday 🎉</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Dancing+Script:wght@500;700&family=EB+Garamond:ital@0;1&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- ============================================================
+       PAGE 1 — NIGHT SKY COUNTDOWN
+       Locked until the target date/time in script.js is reached.
+  ============================================================ -->
+  <section id="page-countdown" class="page active">
+    <canvas id="stars-canvas"></canvas>
+
+    <div class="content">
+      <p class="eyebrow">something's coming</p>
+      <h1 class="title">The countdown is on</h1>
+
+      <div id="countdown" class="countdown">
+        <div class="unit"><span id="cd-days">00</span><label>days</label></div>
+        <div class="unit"><span id="cd-hours">00</span><label>hrs</label></div>
+        <div class="unit"><span id="cd-mins">00</span><label>min</label></div>
+        <div class="unit"><span id="cd-secs">00</span><label>sec</label></div>
+      </div>
+
+      <p class="hint">While you wait, here's something to do:</p>
+
+      <div class="waiting-actions">
+        <!-- EDIT ME: replace with the actual song link you want -->
+        <a class="pill-btn" id="spotify-link" href="https://open.spotify.com/" target="_blank" rel="noopener">
+          🎵 Listen on Spotify
+        </a>
+        <!-- Google Doodle games hub -->
+        <a class="pill-btn" href="https://www.google.com/doodles/" target="_blank" rel="noopener">
+          🎮 Play a Google Doodle game
+        </a>
+      </div>
+
+      <button id="enter-btn" class="cta-btn" disabled>Unlocks at midnight 🔒</button>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       PAGE 2 — VINTAGE LETTER
+       Paper frame stays fixed; only .letter-scroll scrolls.
+  ============================================================ -->
+  <section id="page-letter" class="page">
+    <div class="paper">
+
+      <p class="letter-heading">For you,</p>
+
+      <!-- ONLY THIS AREA SCROLLS -->
+      <div class="letter-scroll">
+        <div class="letter-body" id="letter-text">
+
+          <p class="letter-greeting">Dear NK,</p>
+
+          <p class="letter-message">
+            Another year of you being exactly the kind of person the world needs
+            more of. I hope today is filled with everything that makes you smile —
+            and a little bit of the chaos we love too. Happy birthday. There's more
+            waiting for you just ahead.
+          </p>
+
+          <p class="letter-poem">
+            You are the serendipity of my past,<br>
+            The bright abyss I'm falling into, deep and vast,<br>
+            You are the future I look forward to each day,<br>
+            The butterfly that first stole my breath away.<br>
+            Your eyes, a honey-dew ocean, warm, deep, and wide,<br>
+            That pulls me under in a silent, drowning tide.<br>
+            Whenever your gaze speaks directly into mine—<br>
+            A sudden lightning strike, brilliant and divine.<br>
+            You are the ray my gaze searches for through the crowd,<br>
+            The beat my heart forgets every so often, somehow,<br>
+            You are just a gentle wind, passing quietly through,<br>
+            Yet somehow, you stormed into me before I knew.
+          </p>
+
+          <p class="signature">
+            With love,<br>
+            — PP
+          </p>
+
+        </div>
+      </div>
+
+      <!-- THIS STAYS FIXED -->
+      <button class="cta-btn vintage-btn" id="to-cake-btn">Continue →</button>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       PAGE 3 — CAKE, MAKE A WISH, CUT THE CAKE
+  ============================================================ -->
+  <section id="page-cake" class="page">
+    <div class="content">
+      <h2 class="title small" id="cake-title">Time to celebrate 🎂</h2>
+      <p class="hint" id="cake-instruction">Tap the candle to blow it out</p>
+
+      <div class="cake-scene">
+        <div class="cake" id="cake">
+          <div class="candle">
+            <div class="flame" id="flame"></div>
+            <div class="wick"></div>
+          </div>
+
+          <svg class="cake-svg" viewBox="0 0 240 210" xmlns="http://www.w3.org/2000/svg">
+            <!-- plate -->
+            <ellipse cx="120" cy="188" rx="98" ry="14" fill="#c98f4a" stroke="#7a4a1f" stroke-width="3"/>
+            <ellipse cx="120" cy="184" rx="98" ry="12" fill="#e0ab68" stroke="#7a4a1f" stroke-width="3"/>
+
+            <!-- bottom tier -->
+            <rect x="38" y="118" width="164" height="58" rx="12" fill="#f3c9a1" stroke="#8a4a2f" stroke-width="3"/>
+            <!-- wavy strawberry-pink frosting band -->
+            <path d="M38,118 Q48,104 58,118 T78,118 T98,118 T118,118 T138,118 T158,118 T178,118 T198,118 L202,118 L202,132 L38,132 Z"
+                  fill="#f6a7b8" stroke="#8a4a2f" stroke-width="3" stroke-linejoin="round"/>
+
+            <!-- top tier -->
+            <rect x="55" y="66" width="130" height="54" rx="14" fill="#fff6ea" stroke="#8a4a2f" stroke-width="3"/>
+            <ellipse cx="150" cy="92" rx="34" ry="24" fill="#ffd3dc" opacity="0.55"/>
+            <!-- wavy top edge frosting -->
+            <path d="M55,70 Q65,56 75,70 T95,70 T115,70 T135,70 T155,70 T175,70 L185,70 L185,84 L55,84 Z"
+                  fill="#ffffff" stroke="#8a4a2f" stroke-width="3" stroke-linejoin="round"/>
+
+            <!-- cream dollops -->
+            <circle cx="88" cy="62" r="11" fill="#fffdf8" stroke="#8a4a2f" stroke-width="2.5"/>
+            <circle cx="150" cy="58" r="12" fill="#fffdf8" stroke="#8a4a2f" stroke-width="2.5"/>
+
+            <!-- strawberry (main) -->
+            <g transform="translate(110,34)">
+              <path d="M12,4 C4,4 -6,12 -6,24 C-6,36 12,50 12,50 C12,50 30,36 30,24 C30,12 20,4 12,4 Z"
+                    fill="#e6435b" stroke="#7a1f2b" stroke-width="2.5"/>
+              <circle cx="4" cy="20" r="1.6" fill="#ffe3e8"/>
+              <circle cx="14" cy="16" r="1.6" fill="#ffe3e8"/>
+              <circle cx="20" cy="28" r="1.6" fill="#ffe3e8"/>
+              <circle cx="8" cy="34" r="1.6" fill="#ffe3e8"/>
+              <path d="M12,4 L4,-8 L12,-2 L20,-10 L12,4 Z" fill="#5a9c4a" stroke="#3d6b32" stroke-width="1.5"/>
+            </g>
+
+            <!-- small strawberry -->
+            <g transform="translate(158,44) scale(0.6)">
+              <path d="M12,4 C4,4 -6,12 -6,24 C-6,36 12,50 12,50 C12,50 30,36 30,24 C30,12 20,4 12,4 Z"
+                    fill="#e6435b" stroke="#7a1f2b" stroke-width="2.5"/>
+              <path d="M12,4 L4,-8 L12,-2 L20,-10 L12,4 Z" fill="#5a9c4a" stroke="#3d6b32" stroke-width="1.5"/>
+            </g>
+          </svg>
+
+          <div class="slice-cut" id="slice-cut"></div>
+        </div>
+      </div>
+
+      <button class="cta-btn" id="cake-action-btn">Blow out candle</button>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       PAGE 4 — SURPRISE
+  ============================================================ -->
+  <section id="page-surprise" class="page">
+    <div class="surprise-bg" aria-hidden="true"></div>
+    <div class="surprise-overlay" aria-hidden="true"></div>
+
+    <div class="sparks" aria-hidden="true">
+      <span class="spark"></span><span class="spark"></span><span class="spark"></span>
+      <span class="spark"></span><span class="spark"></span><span class="spark"></span>
+      <span class="spark"></span><span class="spark"></span><span class="spark"></span>
+      <span class="spark"></span><span class="spark"></span><span class="spark"></span>
+    </div>
+
+    <div class="surprise-content">
+      <p class="eyebrow">surprise</p>
+      <h1 class="title glow">One last thing for you</h1>
+
+      <a class="cta-btn neon-btn" href="https://ff.garena.com/en" target="_blank" rel="noopener">
+        Click for Surprise
+      </a>
+      <a class="text-link" href="https://ff.garena.com/en" target="_blank" rel="noopener">
+        Visit Free Fire Official Site
+      </a>
+
+      <p class="closing-line">Happy Birthday! with lots of &lt;3 SNK💜</p>
+    </div>
+  </section>
+
+
+  <script src="script.js"></script>
+</body>
+</html>
