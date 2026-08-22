@@ -15,7 +15,7 @@ A 4-stage birthday surprise page: countdown → vintage letter → cake → 3D s
 | Birthday date/time | `TARGET_DATE` constant at the top | `script.js` |
 | Spotify song | `href` on `#spotify-link` | `index.html` |
 | Letter message | text inside `#letter-text` | `index.html` |
-| Surprise background | `freefire-bg.jpg` (set via CSS `.surprise-bg`) | `style.css` / image file |
+| Surprise background | `freefire-bg-mobile.jpg` (phones) / `freefire-bg.jpg` (desktop), set via CSS `.surprise-bg` | `style.css` / image files |
 | Free Fire link | `href` on both surprise-page links (currently `https://ff.garena.com/en`, the official site) | `index.html` |
 
 ## Flow
