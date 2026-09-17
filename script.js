@@ -1,12 +1,14 @@
 /* ============================================================
    EDIT ME — customize these before you ship it
 ============================================================ */
-const TARGET_DATE = new Date('2026-07-23T00:00:00'); // birthday date/time
-// Spotify link is already set on the <a id="spotify-link"> in index.html — edit it there.
+const TARGET_DATE = new Date('2026-09-06T15:43:00'); // birthday date/time
 // Letter text is in the #letter-text element in index.html — edit it there.
 
 /* ============================================================
    PAGE NAVIGATION
+============================================================ */
+/* ============================================================
+   PAGE NAVIGATION (with a subtle page-turn transition)
 ============================================================ */
 function goToPage(id) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
@@ -23,13 +25,27 @@ const els = {
   secs: document.getElementById('cd-secs'),
 };
 const enterBtn = document.getElementById('enter-btn');
+const dawnGlow = document.getElementById('dawn-glow');
 let unlocked = false;
+let urgency = 0; // 0 = far away, 1 = countdown is essentially at zero
 
 function pad(n) { return String(n).padStart(2, '0'); }
+
+function pulseTick() {
+  [els.days, els.hours, els.mins, els.secs].forEach(el => {
+    el.classList.remove('tick');
+    void el.offsetWidth;
+    el.classList.add('tick');
+  });
+}
 
 function updateCountdown() {
   const now = new Date();
   const diff = TARGET_DATE - now;
+
+  // Sky gets warmer/more restless as the last hour ticks away
+  urgency = Math.max(0, Math.min(1, 1 - diff / (1000 * 60 * 60)));
+  if (dawnGlow) dawnGlow.style.opacity = urgency;
 
   if (diff <= 0) {
     els.days.textContent = '00';
@@ -39,7 +55,7 @@ function updateCountdown() {
     if (!unlocked) {
       unlocked = true;
       enterBtn.disabled = false;
-      enterBtn.textContent = "It's time 🎉 — Open your surprise";
+      enterBtn.textContent = "Excited? Find out now ;)";
     }
     return;
   }
@@ -53,6 +69,7 @@ function updateCountdown() {
   els.hours.textContent = pad(h);
   els.mins.textContent = pad(m);
   els.secs.textContent = pad(s);
+  pulseTick();
 }
 updateCountdown();
 setInterval(updateCountdown, 1000);
@@ -69,11 +86,29 @@ document.getElementById('to-cake-btn').addEventListener('click', () => {
   goToPage('page-cake');
 });
 
+/* Letter paragraphs fade/rise into place as they enter view */
+const letterParagraphs = document.querySelectorAll('#letter-text > p');
+const letterScrollEl = document.querySelector('.letter-scroll');
+if ('IntersectionObserver' in window && letterParagraphs.length) {
+  const letterObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('in-view');
+        letterObserver.unobserve(entry.target);
+      }
+    });
+  }, { root: letterScrollEl, threshold: 0.15 });
+  letterParagraphs.forEach(p => letterObserver.observe(p));
+} else {
+  letterParagraphs.forEach(p => p.classList.add('in-view'));
+}
+
 /* ============================================================
    CAKE INTERACTION: blow candle -> drag to cut cake -> surprise
 ============================================================ */
 const cakeBtn = document.getElementById('cake-action-btn');
 const flame = document.getElementById('flame');
+const smokeWrap = document.getElementById('smoke-wrap');
 const cake = document.getElementById('cake');
 const sliceCut = document.getElementById('slice-cut');
 const cakeTitle = document.getElementById('cake-title');
@@ -88,12 +123,14 @@ let dragging = false;
 cakeBtn.addEventListener('click', () => {
   if (cakeStage === 0) {
     flame.classList.add('out');
+    if (smokeWrap) smokeWrap.classList.add('puff');
     cakeStage = 1;
     cakeTitle.textContent = 'Make a wish ✨';
     cakeInstruction.textContent = 'Now drag your finger across the cake to cut it';
     cakeBtn.style.display = 'none';
     cake.classList.add('cuttable');
   } else if (cakeStage === 2) {
+    requestTiltPermissionIfNeeded();
     goToPage('page-surprise');
   }
 });
@@ -176,7 +213,8 @@ let t = 0;
 let shootingStar = null;
 
 function maybeSpawnShootingStar() {
-  if (shootingStar || Math.random() > 0.006) return;
+  const spawnChance = 0.006 + urgency * 0.02;
+  if (shootingStar || Math.random() > spawnChance) return;
   const startX = Math.random() * starsCanvas.width * 0.6;
   const startY = Math.random() * starsCanvas.height * 0.3;
   shootingStar = {
@@ -192,7 +230,7 @@ function drawStars() {
   sctx.clearRect(0, 0, starsCanvas.width, starsCanvas.height);
 
   stars.forEach(s => {
-    const alpha = s.baseAlpha + Math.sin(t * s.twinkleSpeed + s.phase) * 0.35;
+    const alpha = s.baseAlpha + Math.sin(t * s.twinkleSpeed * (1 + urgency * 1.6) + s.phase) * 0.35;
     const clamped = Math.max(0, Math.min(1, alpha));
     const color = s.warm ? `255, 226, 173` : `205, 225, 255`;
 
@@ -236,6 +274,55 @@ function drawStars() {
       shootingStar = null;
     }
   }
+
+  t++;
+  requestAnimationFrame(drawStars);
+}
+drawStars();
+
+/* ============================================================
+   PAGE 4 — PARALLAX TILT ON THE SURPRISE BACKGROUND
+   Mouse movement on desktop, device tilt on mobile.
+============================================================ */
+const sparksLayer = document.querySelector('.sparks');
+let parallaxX = 0;
+let parallaxY = 0;
+
+function applyParallax() {
+  if (!sparksLayer) return;
+  sparksLayer.style.setProperty('--parallax-x', `${parallaxX}px`);
+  sparksLayer.style.setProperty('--parallax-y', `${parallaxY}px`);
+}
+
+window.addEventListener('mousemove', (e) => {
+  const relX = (e.clientX / window.innerWidth) - 0.5;
+  const relY = (e.clientY / window.innerHeight) - 0.5;
+  parallaxX = relX * -18;
+  parallaxY = relY * -12;
+  applyParallax();
+});
+
+if (window.DeviceOrientationEvent) {
+  window.addEventListener('deviceorientation', (e) => {
+    if (e.gamma == null || e.beta == null) return;
+    const relX = Math.max(-1, Math.min(1, e.gamma / 30));
+    const relY = Math.max(-1, Math.min(1, (e.beta - 45) / 30));
+    parallaxX = relX * -14;
+    parallaxY = relY * -10;
+    applyParallax();
+  });
+}
+
+// iOS 13+ requires an explicit permission prompt, which must be triggered
+// by a real user gesture — the "Continue →" tap into the surprise page
+// counts. Harmless no-op on every other browser/OS.
+function requestTiltPermissionIfNeeded() {
+  if (typeof DeviceOrientationEvent !== 'undefined' &&
+      typeof DeviceOrientationEvent.requestPermission === 'function') {
+    DeviceOrientationEvent.requestPermission().catch(() => {});
+  }
+}
+
 
   t++;
   requestAnimationFrame(drawStars);
