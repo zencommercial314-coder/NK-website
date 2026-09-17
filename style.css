@@ -32,6 +32,7 @@ html, body {
   overflow: hidden;
   background: #000;
   color: #fff;
+  perspective: 1400px;
 }
 
 .page {
@@ -39,20 +40,51 @@ html, body {
   inset: 0;
   width: 100%;
   height: 100%;
-  display: none;
+  display: flex;
   align-items: center;
   justify-content: center;
   flex-direction: column;
   text-align: center;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 0;
+  transform: rotateY(0deg) scale(1);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+  backface-visibility: hidden;
 }
-.page.active { display: flex; }
+.page.active {
+  opacity: 1;
+  pointer-events: auto;
+  z-index: 2;
+  transform: rotateY(0deg) scale(1);
+}
+.page.leaving {
+  opacity: 0;
+  z-index: 1;
+  transform: rotateY(-9deg) scale(0.97);
+}
+.page.entering-start {
+  opacity: 0;
+  transform: rotateY(9deg) scale(0.97);
+}
+/* Pause decorative animations on pages that aren't visible, for performance */
+.page:not(.active) .surprise-bg,
+.page:not(.active) .spark,
+.page:not(.active) .neon-btn,
+.page:not(.active) .flame {
+  animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .page { transition: opacity 0.3s ease; transform: none !important; }
+}
 
 .content { position: relative; z-index: 2; max-width: 560px; padding: 24px; }
 
 .eyebrow {
   text-transform: uppercase;
   letter-spacing: 0.3em;
-  font-size: 0.75rem;
+  font-size: 0.95rem;
   font-weight: 500;
   color: var(--night-blue-soft);
   margin-bottom: 12px;
@@ -156,7 +188,7 @@ html, body {
 #page-countdown .eyebrow { color: var(--star-lavender); }
 #page-countdown .cta-btn {
   padding: 18px 44px;
-  font-size: 1.1rem;
+  font-size: 1.3rem;
   background: linear-gradient(135deg, var(--star-gold), var(--star-lavender));
   color: #1a1030;
   font-weight: 700;
@@ -166,7 +198,7 @@ html, body {
 }
 #page-countdown .cta-btn:disabled {
   background: rgba(255,255,255,0.08);
-  color: rgba(255,255,255,0.5);
+  color: rgba(255,255,255,0.8);
 }
 
 /* ============================================================
@@ -232,10 +264,25 @@ html, body {
   line-height: 1.75;
   text-align: left;
 }
-.letter-greeting { margin: 0 0 18px; }
+.letter-greeting { margin: 0 0 20px; }
 .letter-message  { margin: 0 0 20px; }
-.letter-poem     { margin: 0; }
+.letter-poem     { line-height: 1.6; margin-bottom: 20px;}
 .signature        { margin: 24px 0 4px; }
+
+/* Each paragraph fades/rises into place as it enters view, like ink settling */
+.letter-body > p {
+  opacity: 0;
+  transform: translateY(16px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+}
+.letter-body > p.in-view { opacity: 1; transform: translateY(0); }
+.letter-body > p:nth-child(1) { transition-delay: 0s; }
+.letter-body > p:nth-child(2) { transition-delay: 0.15s; }
+.letter-body > p:nth-child(3) { transition-delay: 0.3s; }
+.letter-body > p:nth-child(4) { transition-delay: 0.45s; }
+@media (prefers-reduced-motion: reduce) {
+  .letter-body > p { opacity: 1; transform: none; transition: none; }
+}
 
 .vintage-btn {
   justify-self: center;
@@ -320,6 +367,42 @@ html, body {
   from { transform: translateX(-50%) scale(1) rotate(-2deg); }
   to   { transform: translateX(-50%) scale(1.08) rotate(2deg); }
 }
+
+/* Smoke wisps that rise once the candle is blown out */
+.smoke-wrap {
+  position: absolute;
+  top: -20px;
+  left: 50%;
+  width: 2px;
+  height: 2px;
+  pointer-events: none;
+  z-index: 3;
+}
+.smoke-puff {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(70, 55, 45, 0.55), rgba(70, 55, 45, 0));
+  opacity: 0;
+}
+.smoke-wrap.puff .smoke-puff {
+  animation: smokeRise 1.9s ease-out forwards;
+}
+.smoke-wrap.puff .smoke-puff:nth-child(1) { animation-delay: 0s; }
+.smoke-wrap.puff .smoke-puff:nth-child(2) { animation-delay: 0.25s; }
+.smoke-wrap.puff .smoke-puff:nth-child(3) { animation-delay: 0.5s; }
+@keyframes smokeRise {
+  0%   { opacity: 0; transform: translate(-50%, 0) scale(0.6); filter: blur(1px); }
+  15%  { opacity: 0.6; }
+  100% { opacity: 0; transform: translate(calc(-50% + 12px), -62px) scale(2.3); filter: blur(4px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .smoke-wrap.puff .smoke-puff { animation: none; opacity: 0; }
+}
+
 .slice-cut {
   position: absolute;
   top: 36px; left: 50%;
@@ -376,7 +459,9 @@ html, body {
 /* Reduced motion */
 @media (prefers-reduced-motion: reduce) {
   .flame { animation: none; }
-  .cta-btn, .pill-btn { transition: none; }
+  .cta-btn { transition: none; }
+  .countdown .unit span.tick { animation: none; }
+  .dawn-glow { transition: none; }
 }
 
 /* Keyboard focus visibility */
@@ -399,7 +484,7 @@ a:focus-visible, button:focus-visible {
     position: absolute;
     inset: 0;
     z-index: 0;
-    background-image: url('freefire-bg-mobile.jpg');
+    background-image: url('freefire-bg-mobile.jpg?v=2');
     background-size: cover;
     background-position: center 30%;
     background-repeat: no-repeat;
@@ -409,7 +494,7 @@ a:focus-visible, button:focus-visible {
   }
   @media (min-width: 700px) {
     .surprise-bg {
-      background-image: url('freefire-bg.jpg');
+      background-image: url('freefire-bg.jpg?v=2');
     }
   }
   @keyframes bgDrift {
@@ -434,6 +519,8 @@ a:focus-visible, button:focus-visible {
     z-index: 1;
     overflow: hidden;
     pointer-events: none;
+    transform: translate(var(--parallax-x, 0px), var(--parallax-y, 0px));
+    transition: transform 0.25s ease-out;
   }
   .spark {
     position: absolute;
@@ -497,7 +584,5 @@ a:focus-visible, button:focus-visible {
   @media (prefers-reduced-motion: reduce) {
     .surprise-bg { animation: none; }
     .spark { animation: none; opacity: 0; }
-  }
-  @media (prefers-reduced-motion: reduce) {
-    .surprise-bg { animation: none; }
+    .sparks { transition: none; }
   }
